@@ -510,9 +510,7 @@ namespace Data
 
         public void RemoveFilter()
         {
-// ReSharper disable RedundantCheckBeforeAssignment
-            if (Filter != null) Filter = null;
-// ReSharper restore RedundantCheckBeforeAssignment
+            Filter = null;
         }
 
         private string _filterValue;
@@ -545,7 +543,7 @@ namespace Data
 
                 ClearItems();
 
-                if (!String.IsNullOrEmpty(value) && value.StartsWith(ExpressionFilteringHeader))
+                if (!String.IsNullOrEmpty(value) && value.StartsWith(ExpressionFilteringHeader, StringComparison.OrdinalIgnoreCase))
                 {
                     //**************************
                     //Expression Filtering...

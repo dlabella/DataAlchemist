@@ -10,7 +10,7 @@ namespace Data
 {
     public static class DbContext
     {
-        private static string paramStr = ":";
+        private static string paramStr = "@";
         public static string RowId = "ROWID";
         #region "Query Functions and Utils"
         private static void FieldsCheck(BizObjectInfo bi, List<string> selectFields)
@@ -117,8 +117,7 @@ namespace Data
             }
             else
             {
-                Stopwatch sw = new Stopwatch();
-                var reflection = new Common.Reflection();
+                var sw = new Stopwatch();
                 using (IDbCommand cmd = cnn.CreateCommand())
                 {
                     cmd.CommandText = sql;
@@ -131,24 +130,29 @@ namespace Data
                         var tmp = new T();
                         var boi = tmp.Db;
                         var properties = new List<ReaderFieldProperties>();
-                        var objProps = new Dictionary<string, KeyValuePair<string, FieldPropertyInfo>>();
+                        var objProps = new Dictionary<string, FieldPropertyInfo>();
 
                         foreach (KeyValuePair<string, FieldPropertyInfo> field in boi.FieldPropertyInfo)
                         {
-                            objProps.Add(field.Key.ToLower(), field);
+                            objProps.Add(field.Key.ToLower(), field.Value);
                         }
                         for (int i = 0; i < reader.FieldCount; i++)
                         {
                             var name = reader.GetName(i).ToLower();
                             if (objProps.ContainsKey(name))
                             {
-                                properties.Add(new ReaderFieldProperties(i,name, objProps[name].Value));
+                                properties.Add(new ReaderFieldProperties(i,name, objProps[name]));
                             }
                         }
-                        var createBizInstance = BizReflection.BizInstanceBuilder<T>(reader, properties);
                         while (reader.Read())
                         {
-                            var item = createBizInstance(reader);
+                            var item = new T();
+                            item.Loading = true;
+                            foreach(var property in properties)
+                            {
+                                property.PropertyInfo.Setter(item, reader.GetValue(property.ColumnIndex));
+                            }
+                            item.Loading = false;
                             yield return item;
                         }
                     }
@@ -192,8 +196,7 @@ namespace Data
             }
             else
             {
-                Stopwatch sw = new Stopwatch();
-                var reflection = new Common.Reflection();
+                var sw = new Stopwatch();
                 using (DbCommand cmd = cnn.CreateCommand() as DbCommand)
                 {
                     cmd.CommandText = sql;
@@ -224,7 +227,7 @@ namespace Data
                             }
                             var createBizInstance = BizReflection.BizInstanceBuilder<T>(reader, properties);
 
-                            List<T> _items = new List<T>();
+                            var _items = new List<T>();
                             while (reader.Read())
                             {
 
@@ -268,10 +271,10 @@ namespace Data
             });
         }
 
-        public async static Task<BizObjectBindingList<BizObject>> QueryDataBindingDynamicAsync(this IDbConnection cnn, string query, BizObjectInfo bi=null, List<string> selectFields = null,
+        public async static Task<BizObjectBindingList<BizObject>> QueryDataBindingDynamicAsync(this IDbConnection cnn, string query, BizObjectInfo bi=null,
                                                                CommandBehavior cmdBehavior = CommandBehavior.Default)
         {
-            var items = await QueryDynamicAsync(cnn, query, bi);
+            var items = await QueryDynamicAsync(cnn, query, bi,cmdBehavior);
             return await Task.Run<BizObjectBindingList<BizObject>>(() =>
             {
                 var bl = new BizObjectBindingList<BizObject>(items);
@@ -315,7 +318,7 @@ namespace Data
             else
             {
 
-                if (condition.StartsWith("SELECT"))
+                if (condition.StartsWith("SELECT", StringComparison.OrdinalIgnoreCase))
                 {
                     sql = condition;
                 }
@@ -353,7 +356,7 @@ namespace Data
             return sql;
         }
 
-        public static string GetQueryString(this IDbConnection cnn,string owner, string table, string condition = null, IEnumerable<string> fields = null)
+        public static string GetQueryString(string owner, string table, string condition = null, IEnumerable<string> fields = null)
         {
             string sql = "";
             string tableFields = table + ".* ";
@@ -400,7 +403,7 @@ namespace Data
             }
             else
             {
-                Stopwatch sw = new Stopwatch();
+                var sw = new Stopwatch();
                 using (IDbCommand cmd = cnn.CreateCommand())
                 {
                     cmd.CommandText = sql;
@@ -409,7 +412,7 @@ namespace Data
                     using (IDataReader reader = cmd.ExecuteReader(cmdBehavior))
                     {
                         if (reader == null) yield return null;
-                        Dictionary<string, object> properties = new Dictionary<string, object>(reader.FieldCount);
+                        var properties = new Dictionary<string, object>(reader.FieldCount);
 
                         while (reader.Read())
                         {
@@ -436,7 +439,7 @@ namespace Data
             }
             else
             {
-                Stopwatch sw = new Stopwatch();
+                var sw = new Stopwatch();
                 using (DbCommand cmd = cnn.CreateCommand() as DbCommand)
                 {
                     cmd.CommandText = sql;
@@ -448,8 +451,8 @@ namespace Data
 
                         return await Task.Run(() =>
                         {
-                            List<BizObject> _items = new List<BizObject>();
-                            Dictionary<string, object> properties = new Dictionary<string, object>(reader.FieldCount);
+                            var _items = new List<BizObject>();
+                            var properties = new Dictionary<string, object>(reader.FieldCount);
                             while (reader.Read())
                             {
                                 var itemData = new Dictionary<string, object>(reader.FieldCount);
@@ -587,7 +590,7 @@ namespace Data
                     {
                         if (reader != null && reader.Read())
                         {
-                            Dictionary<string, object> itemData = new Dictionary<string, object>(reader.FieldCount);
+                            var itemData = new Dictionary<string, object>(reader.FieldCount);
                             for(var i = 0; i < reader.FieldCount; i++)
                             {
                                 itemData.Add(reader.GetName(i), reader[i]);
@@ -607,8 +610,12 @@ namespace Data
                 if (cnn.State != ConnectionState.Open) cnn.Open();
 
                 cnn.FillPrimaryKeys(bo);
-
-                string sql = "INSERT INTO " + bo.Db.TableOwner + "." + bo.Db.TableName + "(";
+                string tableName = bo.Db.TableName;
+                if (!string.IsNullOrEmpty(bo.Db.TableOwner))
+                {
+                    tableName = bo.Db.TableOwner + "." + tableName;
+                }
+                string sql = "INSERT INTO " + tableName + "(";
                 using (IDbCommand cmd = cnn.CreateCommand())
                 {
 
@@ -616,7 +623,7 @@ namespace Data
                     {
                         sql += field.Key + ", ";
                     }
-                    if (sql.EndsWith(", "))
+                    if (sql.EndsWith(", ", StringComparison.OrdinalIgnoreCase))
                     {
                         sql = sql.Remove(sql.Length - 2);
                     }
@@ -634,7 +641,7 @@ namespace Data
 
                         cmd.Parameters.Add(cmdParam);
                     }
-                    if (sql.EndsWith(", "))
+                    if (sql.EndsWith(", ", StringComparison.OrdinalIgnoreCase))
                     {
                         sql = sql.Remove(sql.Length - 2);
                     }
@@ -720,8 +727,12 @@ namespace Data
             try
             {
                 if (cnn.State != ConnectionState.Open) cnn.Open();
-
-                string sql = "DELETE FROM " + bo.Db.TableOwner + "." + bo.Db.TableName;
+                string tableName = bo.Db.TableName;
+                if (!string.IsNullOrEmpty(bo.Db.TableOwner))
+                {
+                    tableName = bo.Db.TableOwner + "." + tableName;
+                }
+                string sql = "DELETE FROM " + tableName;
                 sql += " WHERE ";
                 using (IDbCommand cmd = cnn.CreateCommand())
                 {
@@ -734,7 +745,7 @@ namespace Data
                         cmdParam.Direction = ParameterDirection.Input;
                         cmd.Parameters.Add(cmdParam);
                     }
-                    if (sql.EndsWith(", "))
+                    if (sql.EndsWith(", ", StringComparison.OrdinalIgnoreCase))
                     {
                         sql = sql.Remove(sql.Length - 2);
                     }
@@ -757,7 +768,12 @@ namespace Data
 
                 if (bo.IsDirty && bo.DirtyFields.Items.Count > 0)
                 {
-                    string sql = "UPDATE " + bo.Db.TableOwner + "." + bo.Db.TableName + " SET ";
+                    string tableName = bo.Db.TableName;
+                    if (!string.IsNullOrEmpty(bo.Db.TableOwner))
+                    {
+                        tableName = bo.Db.TableOwner + "." + tableName;
+                    }
+                    string sql = "UPDATE " + tableName + " SET ";
                     int i;
                     using (IDbCommand cmd = cnn.CreateCommand())
                     {
@@ -770,7 +786,7 @@ namespace Data
                             cmdParam.Direction = ParameterDirection.Input;
                             cmd.Parameters.Add(cmdParam);
                         }
-                        if (sql.EndsWith(", "))
+                        if (sql.EndsWith(", ", StringComparison.OrdinalIgnoreCase))
                         {
                             sql = sql.Remove(sql.Length - 2);
                         }
@@ -784,7 +800,7 @@ namespace Data
                             cmdParam.Direction = ParameterDirection.Input;
                             cmd.Parameters.Add(cmdParam);
                         }
-                        if (sql.EndsWith(", "))
+                        if (sql.EndsWith(", ", StringComparison.OrdinalIgnoreCase))
                         {
                             sql = sql.Remove(sql.Length - 2);
                         }
@@ -868,21 +884,9 @@ namespace Data
             }
         }
 
-        public async static void FillPrimaryKeysAsync(this IDbConnection cnn, BizObject bo)
-        {
-            foreach (var seq in bo.Db.Sequences)
-            {
-                if (bo.GetFieldValue(seq.Key) == null)
-                {
-
-                    bo.SetFieldValue(seq.Key, await GetSequenceValueAsync(cnn, bo.Db.TableOwner, seq.Value));
-                }
-            }
-        }
-
         public static void FillPrimaryKeys(this IDbConnection cnn, IEnumerable<BizObject> boList)
         {
-            List<BizObject> itemsToUpdate = new List<BizObject>();
+            var itemsToUpdate = new List<BizObject>();
             foreach (var item in boList)
             {
                 foreach (var seq in item.Db.Sequences)
@@ -898,34 +902,6 @@ namespace Data
                 foreach (var seq in itemsToUpdate[0].Db.Sequences)
                 {
                     var sequences = GetSequenceValues(cnn, itemsToUpdate[0].Db.TableOwner, seq.Value, itemsToUpdate.Count);
-                    int i = 0;
-                    foreach (var item in itemsToUpdate)
-                    {
-                        item.SetFieldValue(seq.Key, sequences[i]);
-                        i++;
-                    }
-                }
-            }
-        }
-
-        public async static void FillPrimaryKeysAsync(this IDbConnection cnn, IEnumerable<BizObject> boList)
-        {
-            List<BizObject> itemsToUpdate = new List<BizObject>();
-            foreach (var item in boList)
-            {
-                foreach (var seq in item.Db.Sequences)
-                {
-                    if (item.GetFieldValue(seq.Key) == null)
-                    {
-                        itemsToUpdate.Add(item);
-                    }
-                }
-            }
-            if (itemsToUpdate.Count > 0)
-            {
-                foreach (var seq in itemsToUpdate[0].Db.Sequences)
-                {
-                    var sequences = await GetSequenceValuesAsync(cnn, itemsToUpdate[0].Db.TableOwner, seq.Value, itemsToUpdate.Count);
                     int i = 0;
                     foreach (var item in itemsToUpdate)
                     {
@@ -958,7 +934,7 @@ namespace Data
 
         private static IList<object> GetSequenceValues(IDbConnection cnn, string owner, string sequence,int sequenceCount)
         {
-            List<object> retVal = new List<object>();
+            var retVal = new List<object>();
             string sql = "SELECT " + owner + "." + sequence + ".NEXTVAL FROM DUAL CONNECT BY LEVEL <="+sequenceCount;
             using(var cmd = cnn.CreateCommand())
             {
@@ -972,7 +948,7 @@ namespace Data
 
         private async static Task<IList<object>> GetSequenceValuesAsync(IDbConnection cnn, string owner, string sequence, int sequenceCount)
         {
-            List<object> retVal = new List<object>();
+            var retVal = new List<object>();
             string sql = "SELECT " + owner + "." + sequence + ".NEXTVAL FROM DUAL CONNECT BY LEVEL <=" + sequenceCount;
             using (var cmd = cnn.CreateCommand())
             {
@@ -1011,7 +987,10 @@ namespace Data
             }
             return retVal;
         }
-
+        public static int SaveBindingList<T>(this IDbConnection cnn, BizObjectBindingList<T> datasource, bool autoCloseConnection = true) where T : BizObject
+        {
+            return cnn.SaveDataBinding<T>(datasource, autoCloseConnection);
+        }
         public static int SaveDataBinding<T>(this IDbConnection cnn, object datasource, bool autoCloseConnection = true) where T : BizObject
         {
             var boList = datasource as BizObjectBindingList<T>;
@@ -1095,7 +1074,7 @@ namespace Data
     public class SyncToken
     {
         private int _taskCount;
-        private Action _action;
+        private readonly Action _action;
 
         public SyncToken(int taskCount, Action action)
         {
@@ -1114,7 +1093,7 @@ namespace Data
 
     public class ReaderFieldProperties
     {
-        public ReaderFieldProperties(int columnIndex, string columnName, BizPropertyInfo propertyInfo)
+        public ReaderFieldProperties(int columnIndex, string columnName, FieldPropertyInfo propertyInfo)
         {
             ColumnIndex = columnIndex;
             ColumnName = columnName;
@@ -1122,7 +1101,7 @@ namespace Data
         }
         public int ColumnIndex { get; internal set; }
         public string ColumnName { get; internal set; }
-        public BizPropertyInfo PropertyInfo { get; internal set; }
+        public FieldPropertyInfo PropertyInfo { get; internal set; }
 
     }
 }

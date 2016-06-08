@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Data
 {
-    public class Test
+    public static class Test
     {
         public static TestClass GenericBuilder(IDataRecord reader, IEnumerable<Tuple<int, string, Type, bool>> properties)
         {

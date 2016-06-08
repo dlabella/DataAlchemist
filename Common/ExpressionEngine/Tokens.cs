@@ -180,7 +180,7 @@ namespace Common.ExpressionEngine
                 case OperatorType.Mult: return Expression.Multiply(argLeft, argRight);
                 case OperatorType.Div: return Expression.Divide(argLeft, argRight);
 
-                default: throw new NotImplementedException(operatorType.ToString() + " operation is not implemented");
+                default: throw new NotImplementedException(operatorType + " operation is not implemented");
             }
         }
 
@@ -194,7 +194,7 @@ namespace Common.ExpressionEngine
             switch (operatorType)
             {
                 case OperatorType.Not: return Expression.Not(arg);
-                default: throw new NotImplementedException(operatorType.ToString() + " operation is not implemented");
+                default: throw new NotImplementedException(operatorType + " operation is not implemented");
             }
         }
     }
@@ -204,7 +204,7 @@ namespace Common.ExpressionEngine
     /// </summary>
     class BracketsToken : Token
     {
-        private List<Token> tokens;
+        private readonly List<Token> tokens;
 
         public List<Token> Tokens { get { return tokens; } }
 
@@ -221,7 +221,7 @@ namespace Common.ExpressionEngine
     /// </summary>
     class MemberOrConstantToken : Token
     {
-        string strValue;
+        readonly string strValue;
         bool isString;
 
         public MemberOrConstantToken(string strVal, bool isString)

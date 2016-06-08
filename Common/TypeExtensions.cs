@@ -93,12 +93,7 @@ namespace Common
             return null;
         }
 
-        public delegate void InvokeHandler();
-        public static void SafeInvoke(this System.Windows.Forms.Control control, InvokeHandler handler)
-        {
-            if (control.InvokeRequired) control.Invoke(handler);
-            else handler();
-        }
+        
 
         public static T TryCast<T>(this object obj)
         {
@@ -109,38 +104,6 @@ namespace Common
 
             return default(T);
         }
-
-        //public static void CopyTo(this object source, object target,HashSet<string> excludedProperties=null)
-        //{
-        //    if (source == null) return;
-        //    foreach (var property in source.GetType().GetProperties())
-        //    {
-        //        if (property.CanRead)
-        //        {
-        //            var targetProp=target.GetType().GetProperty(property.Name);
-
-        //            if (excludedProperties == null)
-        //            {
-        //                if (targetProp != null && targetProp.CanWrite )
-        //                {
-        //                    targetProp.SetValue(target, property.GetValue(source, null), null);
-        //                }
-        //            }
-        //            else
-        //            {
-        //                if (targetProp != null && targetProp.CanWrite && !excludedProperties.Contains(targetProp.Name))
-        //                {
-        //                    targetProp.SetValue(target, property.GetValue(source, null), null);
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
-        //public static void Clear(this object source,HashSet<string> excludedProperties=null)
-        //{
-        //    var init = Activator.CreateInstance(source.GetType());
-        //    init.CopyTo(source,excludedProperties);
-        //}
     }
     
 }

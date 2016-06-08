@@ -9,15 +9,10 @@ namespace Data
 {
     public class SqlParser
     {
-        public SqlParser()
-        {
-
-        }
-
         public string Parse(string sqlText)
         {
             string sql = sqlText.ToLower();
-            if (sql.StartsWith("select ") && sql.Contains(" from "))
+            if (sql.StartsWith("select ", StringComparison.Ordinal) && sql.Contains(" from "))
             {
                 return "";
             }

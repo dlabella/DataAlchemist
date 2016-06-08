@@ -53,14 +53,16 @@ namespace Data
         {
             if (GetType() == typeof(T)) return (T)this;
 
-            T bo = new T();
+            var bo = new T();
             foreach(var property in GetDynamicMemberNames())
             {
                 bo.SetFieldValue(property, GetFieldValue(property));
             }
             return bo;
         }
-
+        [Bindable(false)]
+        [Browsable(false)]
+        [XmlIgnore]
         public bool Loading
         {
             get { return _userHandle; }
@@ -278,18 +280,6 @@ namespace Data
                 RaiseUnboundPropertyChanged(fieldName);
         }
 
-        public void SetFieldValue(string fieldName, object value,Reflection.GenericSetter setter, IValueConverter converter, bool raisePropertyChanged = false)
-        {
-            if (value == DBNull.Value)
-            {
-                SetFieldValue(fieldName, null);
-            }
-            else
-            {
-                SetFieldValue(fieldName, value, setter);
-            }
-        }
-
         public void SetFieldValue(string fieldName, object value, Reflection.GenericSetter setter, bool raisePropertyChanged = false)
         {
             if (_dynamicMode)
@@ -409,7 +399,7 @@ namespace Data
         public static DbType ParseValueType(Type t)
         {
             string typeName = t.Name.ToUpper();
-            if (typeName.StartsWith("NULLABLE"))
+            if (typeName.StartsWith("NULLABLE", StringComparison.Ordinal))
             {
                 typeName = t.FullName.ToUpper();
             }
@@ -633,9 +623,13 @@ namespace Data
                             if (pkAttr.Length > 0)
                             {
                                 PrimaryKeys.Add(fieldName.ToUpper());
-                                string sequence = ((Data.BizObject.PrimaryKeyAttribute)columnNameAttr[0]).Sequence;
-                                if (!string.IsNullOrEmpty(sequence))
-                                    Sequences.Add(fieldName.ToUpper(), sequence);
+                                var pkObj=pkAttr[0] as Data.BizObject.PrimaryKeyAttribute;
+                                if (pkObj != null)
+                                {
+                                    string sequence = pkObj.Sequence;
+                                    if (!string.IsNullOrEmpty(sequence))
+                                        Sequences.Add(fieldName.ToUpper(), sequence);
+                                }
                             }
                         }
                     }

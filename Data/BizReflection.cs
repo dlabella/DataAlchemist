@@ -9,15 +9,15 @@ using System.Threading.Tasks;
 
 namespace Data
 {
-    public class BizReflection
+    public static class BizReflection
     {
         public delegate T ToTDelegate<T>(IDataReader reader);
         public static ToTDelegate<T> BizInstanceBuilder<T>(IDataReader reader, IEnumerable<ReaderFieldProperties> properties)
         {
             Type[] methodArgs = { typeof(IDataReader) };
-            DynamicMethod dm = new DynamicMethod("MapDatareader", typeof(T), methodArgs, typeof(T));
+            var dm = new DynamicMethod("MapDatareader", typeof(T), methodArgs, typeof(T));
 
-            ILGenerator il = dm.GetILGenerator();
+            var il = dm.GetILGenerator();
             il.DeclareLocal(typeof(T));
 
             il.Emit(OpCodes.Newobj, typeof(T).GetConstructors()[0]);
@@ -48,14 +48,17 @@ namespace Data
                 {
                     dataType = info.PropertyInfo.Type;
                 }
-                if (dataType == typeof(decimal) || dataType == typeof(Decimal))
+                /*if (dataType == typeof(decimal) || dataType == typeof(Decimal))
                 {
                     il.Emit(OpCodes.Call, typeof(Converter).GetMethod("ToDecimal", new Type[] { typeof(object) }));
                 }
                 else if (dataType == typeof(DateTime))
                 {
                     il.Emit(OpCodes.Call, typeof(Converter).GetMethod("ToDateTime", new Type[] { typeof(object) }));
-                }
+                }else
+                {
+                    il.Emit(OpCodes.Call, typeof(Converter).GetMethod("ToString", new Type[] { typeof(object) }));
+                }*/
                 il.Emit(OpCodes.Nop);
                 il.Emit(OpCodes.Callvirt, typeof(T).GetMethod("set_" + info.PropertyInfo.Name, new Type[] { info.PropertyInfo.Type }));
                 il.Emit(OpCodes.Nop);
@@ -68,7 +71,7 @@ namespace Data
             return dm.CreateDelegate(typeof(ToTDelegate<T>)) as ToTDelegate<T>;
         }
     }
-    public class Converter
+    public static class Converter
     {
         public static DateTime? ToDateTime(object value)
         {

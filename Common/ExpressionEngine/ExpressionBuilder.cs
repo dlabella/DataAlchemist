@@ -8,6 +8,7 @@ using System.Reflection;
 
 namespace Common.ExpressionEngine
 {
+        /*
         /// <summary>
         /// This class builds Functors based on input strings: Func<T, Result>, Func<T1, T2, Result>. It is easy to extent to any required # of Args.
         /// Basically almost any arithmetical and logical expression which can bew written in C# is supported including properties and function calls.
@@ -31,20 +32,23 @@ namespace Common.ExpressionEngine
         /// function_call       =       expression.FuncName(arg_list)
         /// expression          =       const | argument | property | function_call | bin_operation | un_operation
         /// </summary>
+        */
         public static class ExpressionBuilder
         {
+            /*
             /// <summary>
             /// Constructs Func<T, Result> functor based on stringExpression passed
             /// </summary>
+            */
             public static Func<T, TResult> BuildFunctor<T, TResult>(string stringExpression)
             {
-                if (stringExpression == null || stringExpression == string.Empty) return null;
+                if (string.IsNullOrEmpty(stringExpression)) return null;
 
-                List<Token> tokens = ExpressionParser.ParseExpression(stringExpression);
+                var tokens = ExpressionParser.ParseExpression(stringExpression);
                 if (tokens.Count == 0) return null;
 
                 ParameterExpression context = Expression.Parameter(typeof(T), "context");
-                List<Expression> contexts = new List<Expression>();
+                var contexts = new List<Expression>();
                 contexts.Add(context);
                 Expression expression = BuildExpression(new ListSegment<Token>(tokens), contexts, typeof(TResult));
 
@@ -54,23 +58,24 @@ namespace Common.ExpressionEngine
 
                 return functor;
             }
-
+            /*
             /// <summary>
             /// Constructs Func<T1, T2, Result> functor based on stringExpression passed
             /// </summary>
+            */
             public static Func<T1, T2, TResult> BuildFunctor<T1, T2, TResult>(string stringExpression)
             {
-                if (stringExpression == null || stringExpression == string.Empty) return null;
+                if (string.IsNullOrEmpty(stringExpression)) return null;
 
-                List<Token> tokens = ExpressionParser.ParseExpression(stringExpression);
+                var tokens = ExpressionParser.ParseExpression(stringExpression);
                 if (tokens.Count == 0) return null;
 
-                ParameterExpression context1 = Expression.Parameter(typeof(T1), "context1");
-                ParameterExpression context2 = Expression.Parameter(typeof(T2), "context2");
-                List<Expression> contexts = new List<Expression>();
+                var context1 = Expression.Parameter(typeof(T1), "context1");
+                var context2 = Expression.Parameter(typeof(T2), "context2");
+                var contexts = new List<Expression>();
                 contexts.Add(context1);
                 contexts.Add(context2);
-                Expression expression = BuildExpression(new ListSegment<Token>(tokens), contexts, typeof(TResult));
+                var expression = BuildExpression(new ListSegment<Token>(tokens), contexts, typeof(TResult));
 
                 Expression<Func<T1, T2, TResult>> lambda =
                     Expression.Lambda<Func<T1, T2, TResult>>(expression, new ParameterExpression[] { context1, context2 });
@@ -95,7 +100,7 @@ namespace Common.ExpressionEngine
 
                 if (operatorTokenIndex != -1)
                 {
-                    OperatorToken operatorToken = tokens[operatorTokenIndex] as OperatorToken;
+                    var operatorToken = tokens[operatorTokenIndex] as OperatorToken;
                     if (operatorToken.IsBinary)
                     {
                         if (operatorTokenIndex == 0)
@@ -103,8 +108,8 @@ namespace Common.ExpressionEngine
                         if (operatorTokenIndex == tokens.Count - 1)
                             throw new BuilderException(operatorToken.Position, BuilderException.BuilderExceptionType.NoRightOperand);
 
-                        ListSegment<Token> leftArgTokens = tokens.GetSegment(0, operatorTokenIndex);
-                        ListSegment<Token> rightArgTokens = tokens.GetSegment(operatorTokenIndex + 1, tokens.Count - operatorTokenIndex - 1);
+                        var leftArgTokens = tokens.GetSegment(0, operatorTokenIndex);
+                        var rightArgTokens = tokens.GetSegment(operatorTokenIndex + 1, tokens.Count - operatorTokenIndex - 1);
 
                         Expression argLeft = null;
                         Expression argRight = null;
@@ -174,7 +179,7 @@ namespace Common.ExpressionEngine
                     {
                         case 0:
                             {
-                                MemberOrConstantToken mcToken = tokens[i] as MemberOrConstantToken;
+                                var mcToken = tokens[i] as MemberOrConstantToken;
                                 if (mcToken != null)
                                 {
                                     if (mcToken.IsString)
@@ -222,7 +227,7 @@ namespace Common.ExpressionEngine
                                     break;
                                 }
 
-                                BracketsToken brToken = tokens[i] as BracketsToken;
+                                var brToken = tokens[i] as BracketsToken;
                                 if (brToken != null)
                                 {
                                     result = BuildExpression(new ListSegment<Token>(brToken.Tokens), contexts, null);
@@ -238,7 +243,7 @@ namespace Common.ExpressionEngine
                             break;
                         case 2:
                             {
-                                BracketsToken brToken = tokens[i] as BracketsToken;
+                                var brToken = tokens[i] as BracketsToken;
                                 if (brToken != null)
                                 {
                                     int argsCount = GetParamsNumber(brToken);
@@ -252,13 +257,13 @@ namespace Common.ExpressionEngine
                                         else
                                         {
                                             ParameterInfo[] pinfos = mi.GetParameters();
-                                            List<Type> recommendedTypes = new List<Type>();
+                                            var recommendedTypes = new List<Type>();
 
                                             for (int j = 0; j < pinfos.Length; ++j)
                                                 if (!pinfos[j].IsOut && !pinfos[j].IsRetval) recommendedTypes.Add(pinfos[j].ParameterType);
                                                 else throw new BuilderException(tokens[i].Position, BuilderException.BuilderExceptionType.ParameterTypeNotSupported, pinfos[j].Name);
 
-                                            List<Expression> args = BuildFunctionArgumentsList(brToken, contexts, recommendedTypes);
+                                            var args = BuildFunctionArgumentsList(brToken, contexts, recommendedTypes);
                                             result = Expression.Call(result, mi, args);
                                         }
                                     }
@@ -266,10 +271,10 @@ namespace Common.ExpressionEngine
                                     {
                                         if (argsCount != 1) throw new BuilderException(conversionToken.Position, BuilderException.BuilderExceptionType.WrongArgumentsNumber, "1 expected");
 
-                                        List<Type> recommendedTypes = new List<Type>();
+                                        var recommendedTypes = new List<Type>();
                                         recommendedTypes.Add(null);
 
-                                        List<Expression> args = BuildFunctionArgumentsList(brToken, contexts, recommendedTypes);
+                                        var args = BuildFunctionArgumentsList(brToken, contexts, recommendedTypes);
                                         result = conversionToken.CreateConversion(args[0]);
                                     }
                                     else
@@ -327,12 +332,12 @@ namespace Common.ExpressionEngine
             {
                 int startIndex = 0;
                 int currIndex = 0;
-                List<Expression> arguments = new List<Expression>();
+                var arguments = new List<Expression>();
                 if (brackets.Tokens.Count == 0) return arguments;
 
                 for (; currIndex < brackets.Tokens.Count; ++currIndex)
                 {
-                    Token currToken = brackets.Tokens[currIndex];
+                    var currToken = brackets.Tokens[currIndex];
                     if (currToken is CommaToken)
                     {
                         if (startIndex > currIndex - 1)
@@ -359,7 +364,7 @@ namespace Common.ExpressionEngine
                 int operatorTokenIndex = -1;
                 for (int i = 0; i < tokens.Count; ++i)
                 {
-                    OperatorToken opToken = tokens[i] as OperatorToken;
+                    var opToken = tokens[i] as OperatorToken;
                     if (opToken != null && (operatorToken == null || opToken.Priority < operatorToken.Priority))
                     {
                         operatorTokenIndex = i;

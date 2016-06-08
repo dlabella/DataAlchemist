@@ -12,7 +12,7 @@ namespace Common
     {
         public static int IndexOf(this string text, string token, int startIndex, bool includeToken, bool retrunLengthIfNotFound)
         {
-            var idx = text.IndexOf(token, startIndex);
+            var idx = text.IndexOf(token, startIndex, StringComparison.OrdinalIgnoreCase);
             if (retrunLengthIfNotFound && idx <= 0)
             {
                 return text.Length;
@@ -45,19 +45,19 @@ namespace Common
         public static string SanitizeFileName(this string fileName)
         {
             string regexSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
-            Regex r = new Regex(string.Format("[{0}]", Regex.Escape(regexSearch)));
+            var r = new Regex(string.Format("[{0}]", Regex.Escape(regexSearch)));
             return r.Replace(fileName, "");
         }
 
         public static string StringBetween(this string strSource, string strBegin, string strEnd, bool includeStart = false, bool includeEnd = false)
         {
             if (string.IsNullOrEmpty(strSource.Trim())) return "";
-            int start = strSource.IndexOf(strBegin);
+            int start = strSource.IndexOf(strBegin, StringComparison.OrdinalIgnoreCase);
             if (!includeStart)
                 start += strBegin.Length;
             if (start != -1)
             {
-                int end = strSource.IndexOf(strEnd, start);
+                int end = strSource.IndexOf(strEnd, start, StringComparison.OrdinalIgnoreCase);
                 if (end != -1)
                 {
                     if (includeEnd)
@@ -101,6 +101,14 @@ namespace Common
                 txt = txt.ToLower();
             }
             return txt;
+        }
+
+        public static string RandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }

@@ -16,6 +16,7 @@ namespace Common.ExpressionEngine
         public int Position
         {
             get { return position; }
+            set { position=value; }
         }
 
         internal ExpressionEngineException(int position, string message = "") : base(message) { this.position = position; }
@@ -77,8 +78,8 @@ namespace Common.ExpressionEngine
     /// </summary>
     public class ExpressionTypeException : ExpressionEngineException
     {
-        Type expectedType;
-        Type obtainedType;
+        readonly Type expectedType;
+        readonly Type obtainedType;
 
         public Type ExpectedType
         {

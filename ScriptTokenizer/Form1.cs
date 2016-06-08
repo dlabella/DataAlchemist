@@ -12,7 +12,7 @@ namespace ScriptTokenizer
 {
     public partial class Form1 : Form
     {
-        int _fragmentIdx = 0;
+        int _fragmentIdx;
         List<Sql.SqlFragment> _fragments = new List<Sql.SqlFragment>();
         public Form1()
         {

@@ -8,7 +8,7 @@ namespace Data
 {
     public static class Globals
     {
-        public static int DocumentStartCounter=0;
+        public static int DocumentStartCounter;
         public static Action<IDbConnection, BizObject> PostInsertAction;
     }
 }

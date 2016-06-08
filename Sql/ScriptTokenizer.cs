@@ -19,22 +19,22 @@ namespace Sql
             {
                 if ((i + 5) < length)
                 {
-                    var cmd = new string(new char[6] { sqlU[i], sqlU[i + 1], sqlU[i + 2], sqlU[i + 3], sqlU[i + 4], sqlU[i + 5] });
-                    if (cmd.StartsWith("--"))
+                    var cmd = new string(new char[] { sqlU[i], sqlU[i + 1], sqlU[i + 2], sqlU[i + 3], sqlU[i + 4], sqlU[i + 5] });
+                    if (cmd.StartsWith("--", StringComparison.Ordinal))
                     {
                         var sentence = sql.Substring(i, sql.IndexOf(Environment.NewLine, i,false,true) - i).ToUpper();
                         i += sentence.Length;
                     }
-                    else if (cmd.StartsWith("ALTER") || cmd == "CREATE" || 
-                             cmd.StartsWith("DROP") || cmd.StartsWith("GRANT") || 
-                             cmd.StartsWith("REVOKE") || cmd.StartsWith("INSERT") ||
-                             cmd.StartsWith("DELETE") || cmd.StartsWith("UPDATE") ||
-                             cmd.StartsWith("COMMIT"))
+                    else if (cmd.StartsWith("ALTER", StringComparison.OrdinalIgnoreCase) || cmd.StartsWith("CREATE", StringComparison.OrdinalIgnoreCase) ||
+                             cmd.StartsWith("DROP", StringComparison.OrdinalIgnoreCase) || cmd.StartsWith("GRANT", StringComparison.OrdinalIgnoreCase) ||
+                             cmd.StartsWith("REVOKE", StringComparison.OrdinalIgnoreCase) || cmd.StartsWith("INSERT", StringComparison.OrdinalIgnoreCase) ||
+                             cmd.StartsWith("DELETE", StringComparison.OrdinalIgnoreCase) || cmd.StartsWith("UPDATE", StringComparison.OrdinalIgnoreCase) ||
+                             cmd.StartsWith("COMMIT", StringComparison.OrdinalIgnoreCase))
                     {
 
-                        if (cmd.StartsWith("GRANT") || cmd.StartsWith("REVOKE") ||
-                            cmd.StartsWith("INSERT") || cmd.StartsWith("DELETE") || 
-                            cmd.StartsWith("UPDATE"))
+                        if (cmd.StartsWith("GRANT", StringComparison.OrdinalIgnoreCase) || cmd.StartsWith("REVOKE", StringComparison.OrdinalIgnoreCase) ||
+                            cmd.StartsWith("INSERT", StringComparison.OrdinalIgnoreCase) || cmd.StartsWith("DELETE", StringComparison.OrdinalIgnoreCase) || 
+                            cmd.StartsWith("UPDATE", StringComparison.OrdinalIgnoreCase))
                         {
                             endIdx = sql.IndexOf(';', i,true,true);
                             string fragment = sql.Substring(i, endIdx - i);

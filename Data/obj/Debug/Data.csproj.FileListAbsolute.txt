@@ -1,0 +1,5 @@
+C:\Proyectos\Repos\GitHub\DataAlchemist\bin\Data.dll
+C:\Proyectos\Repos\GitHub\DataAlchemist\bin\Data.pdb
+C:\Proyectos\Repos\GitHub\DataAlchemist\Data\obj\Debug\Data.csprojResolveAssemblyReference.cache
+C:\Proyectos\Repos\GitHub\DataAlchemist\Data\obj\Debug\Data.dll
+C:\Proyectos\Repos\GitHub\DataAlchemist\Data\obj\Debug\Data.pdb

@@ -12,7 +12,7 @@ namespace Common.Collections
         const int initialsize = 89;
         int nextfree;
         const float loadfactor = 1f;
-        static readonly uint[] primeSizes = new uint[]{ 89, 179, 359, 719, 1439, 2879, 5779, 11579, 23159, 46327,
+        static readonly uint[] primeSizes = { 89, 179, 359, 719, 1439, 2879, 5779, 11579, 23159, 46327,
                                     92657, 185323, 370661, 741337, 1482707, 2965421, 5930887, 11861791,
                                     23723599, 47447201, 94894427, 189788857, 379577741, 759155483};
 
@@ -51,13 +51,13 @@ namespace Common.Collections
             if (nextfree >= entries.Length)
                 Resize();
 
-            uint hash = (uint)key.GetHashCode();
+            var hash = (uint)key.GetHashCode();
 
-            uint hashPos = hash % (uint)hashes.Length;
+            var hashPos = hash % (uint)hashes.Length;
 
-            int entryLocation = hashes[hashPos];
+            var entryLocation = hashes[hashPos];
 
-            int storePos = nextfree;
+            var storePos = nextfree;
 
 
             if (entryLocation != -1) // already there
@@ -154,11 +154,11 @@ namespace Common.Collections
 
         public int GetPosition(K key)
         {
-            uint hash = (uint)key.GetHashCode();
+            var hash = (uint)key.GetHashCode();
 
-            uint pos = hash % (uint)hashes.Length;
+            var pos = hash % (uint)hashes.Length;
 
-            int entryLocation = hashes[pos];
+            var entryLocation = hashes[pos];
 
             if (entryLocation == -1)
                 return -1;
@@ -323,7 +323,7 @@ namespace Common.Collections
 
             public bool Contains(object key)
             {
-                return Contains((K)key);
+                return ContainsKey((K)key);
             }
 
             IDictionaryEnumerator IDictionary.GetEnumerator()

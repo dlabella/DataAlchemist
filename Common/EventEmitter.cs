@@ -98,19 +98,17 @@ namespace Common
             }
         }
 
-        public async static void EmitEventAsync(object source, Type subscription, object payload)
+        public static void EmitEventAsync(object source, Type subscription, object payload)
         {
             if (!_subscriptions.ContainsKey(subscription)) return;
             foreach (var item in _subscriptions[subscription])
             {
                 if (item.Value != source)
                 {
-                    await Task.Run(() => {
-                        foreach (var actions in item.Value)
-                        {
-                            actions.Invoke(source, payload);
-                        }
-                    });
+                    foreach (var actions in item.Value)
+                    {
+                        actions.Invoke(source, payload);
+                    }
                 }
             }
         }

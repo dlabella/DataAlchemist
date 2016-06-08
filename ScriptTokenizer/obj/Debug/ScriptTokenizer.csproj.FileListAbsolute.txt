@@ -1,0 +1,10 @@
+C:\Proyectos\Repos\GitHub\DataAlchemist\bin\ScriptTokenizer.exe.config
+C:\Proyectos\Repos\GitHub\DataAlchemist\bin\ScriptTokenizer.exe
+C:\Proyectos\Repos\GitHub\DataAlchemist\bin\ScriptTokenizer.pdb
+C:\Proyectos\Repos\GitHub\DataAlchemist\ScriptTokenizer\obj\Debug\ScriptTokenizer.csprojResolveAssemblyReference.cache
+C:\Proyectos\Repos\GitHub\DataAlchemist\ScriptTokenizer\obj\Debug\ScriptTokenizer.Form1.resources
+C:\Proyectos\Repos\GitHub\DataAlchemist\ScriptTokenizer\obj\Debug\ScriptTokenizer.Properties.Resources.resources
+C:\Proyectos\Repos\GitHub\DataAlchemist\ScriptTokenizer\obj\Debug\ScriptTokenizer.csproj.GenerateResource.Cache
+C:\Proyectos\Repos\GitHub\DataAlchemist\ScriptTokenizer\obj\Debug\ScriptTokenizer.exe.licenses
+C:\Proyectos\Repos\GitHub\DataAlchemist\ScriptTokenizer\obj\Debug\ScriptTokenizer.exe
+C:\Proyectos\Repos\GitHub\DataAlchemist\ScriptTokenizer\obj\Debug\ScriptTokenizer.pdb

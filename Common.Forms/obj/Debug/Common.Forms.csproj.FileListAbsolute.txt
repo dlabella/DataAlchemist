@@ -1,0 +1,4 @@
+C:\Proyectos\Repos\GitHub\DataAlchemist\bin\Common.Forms.dll
+C:\Proyectos\Repos\GitHub\DataAlchemist\bin\Common.Forms.pdb
+C:\Proyectos\Repos\GitHub\DataAlchemist\Common.Forms\obj\Debug\Common.Forms.dll
+C:\Proyectos\Repos\GitHub\DataAlchemist\Common.Forms\obj\Debug\Common.Forms.pdb

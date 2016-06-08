@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Data
 {
-    public class DbSchema
+    public static class DbSchema
     {
         public static string SchemaDbaPrefix = "ALL_";
     }

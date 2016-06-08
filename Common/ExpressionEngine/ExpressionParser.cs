@@ -16,9 +16,9 @@ namespace Common.ExpressionEngine
         /// </summary>
         internal static List<Token> ParseExpression(string expression)
         {
-            List<Token> result = new List<Token>();
-            List<int> brackets = new List<int>();
-            StringBuilder strToken = new StringBuilder();
+            var result = new List<Token>();
+            var brackets = new List<int>();
+            var strToken = new StringBuilder();
             bool inQuotes = false;
 
             for (int i = 0; i < expression.Length; ++i)
@@ -150,7 +150,7 @@ namespace Common.ExpressionEngine
                 int startIndex = brackets[brackets.Count - 1];
                 brackets.RemoveAt(brackets.Count - 1);
 
-                List<Token> bracketTokens = new List<Token>();
+                var bracketTokens = new List<Token>();
                 for (int i = startIndex; i <= result.Count - 1; ++i)
                     bracketTokens.Add(result[i]);
 

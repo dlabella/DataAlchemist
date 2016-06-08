@@ -6,14 +6,16 @@ using System.Collections.Generic;
 
 namespace Common.ExpressionEngine
 {
+    /*
     /// <summary>
     /// This is very simple, but not finished class representing segment of the List<>. Similar to ArraySegment<>, but more useful
     /// </summary>
+    */
     public class ListSegment<T>
     {
-        List<T> list;
-        int offset;
-        int count;
+        readonly List<T> list;
+        readonly int offset;
+        readonly int count;
 
         public ListSegment(List<T> list) : this(list, 0, list.Count) { }
 
@@ -156,7 +158,7 @@ namespace Common.ExpressionEngine
 
         public List<T> FindAll(Predicate<T> match)
         {
-            List<T> result = new List<T>();
+            var result = new List<T>();
             for (int i = offset; i < offset + count; ++i)
                 if (match(list[i])) result.Add(list[i]);
             return result;

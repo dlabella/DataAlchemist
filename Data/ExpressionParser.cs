@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Data
 {
-    public class ExpressionParser
+    public static class ExpressionParser
     {
         public static string ParseExpression<T>(Expression<Func<T, bool>> exp) where T : BizObject
         {

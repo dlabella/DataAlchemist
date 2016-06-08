@@ -1,0 +1,4 @@
+C:\Proyectos\Repos\GitHub\DataAlchemist\bin\Common.dll
+C:\Proyectos\Repos\GitHub\DataAlchemist\bin\Common.pdb
+C:\Proyectos\Repos\GitHub\DataAlchemist\Common\obj\Debug\Common.dll
+C:\Proyectos\Repos\GitHub\DataAlchemist\Common\obj\Debug\Common.pdb

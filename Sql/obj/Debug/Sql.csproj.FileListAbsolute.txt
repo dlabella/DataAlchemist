@@ -1,0 +1,5 @@
+C:\Proyectos\Repos\GitHub\DataAlchemist\bin\Sql.dll
+C:\Proyectos\Repos\GitHub\DataAlchemist\bin\Sql.pdb
+C:\Proyectos\Repos\GitHub\DataAlchemist\Sql\obj\Debug\Sql.csprojResolveAssemblyReference.cache
+C:\Proyectos\Repos\GitHub\DataAlchemist\Sql\obj\Debug\Sql.dll
+C:\Proyectos\Repos\GitHub\DataAlchemist\Sql\obj\Debug\Sql.pdb
