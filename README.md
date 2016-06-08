@@ -1,4 +1,4 @@
 # DataAlchemist
-Yet another datamapper whit query/insert/update/delete support.
+Yet another datamapper with query/insert/update/delete support.
 
 
